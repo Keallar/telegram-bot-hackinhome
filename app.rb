@@ -1,30 +1,24 @@
 require 'telegram/bot'
 require 'dotenv'
-require 'sinatra'
 require 'logger'
-require 'sinatra/activerecord'
-Dir[File.dirname(__FILE__) + '/lib/*'].each { |file| require file }
+require_relative 'lib/listener'
+Dir[File.dirname(__FILE__) + '/lib/*.rb'].each { |file| require_relative file }
 
 class TelegramBotApp
-  TOKEN = ENV['BOT_SECRET_TOKEN']
+  TOKEN = ENV['TOKEN']
   LOGGER = Logger.new($stderr)
 
   def initialize
     @client = Telegram::Bot::Client.new(TOKEN, logger: LOGGER)
 
-    begin
-      @client.run do |bot|
-        bot.logger.info('Bot started successfully')
-        listener = Bot::Listener.new(bot)
+    @client.run do |bot|
+      listener = Bot::Listener.new(bot)
 
-        bot.listen do |message|
-          Thread.start(message) do |rqst|
-            listener.call(rqst)
-          end
+      bot.listen do |message|
+        Thread.start(message) do |rqst|
+          listener.call(rqst)
         end
       end
-    rescue => e
-      bot.logger.error(e.message)
     end
   end
 end

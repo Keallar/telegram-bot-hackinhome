@@ -130,6 +130,7 @@ DEPENDENCIES
   activerecord
   byebug
   dotenv
+  i18n
   json
   net-http-persistent
   pg
