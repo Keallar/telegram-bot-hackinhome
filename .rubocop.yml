@@ -1,0 +1,5 @@
+Style/Documentation:
+  Enable: false
+
+Style/RescueStandardError:
+  Enable: false
