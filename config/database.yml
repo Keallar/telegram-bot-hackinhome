@@ -1,6 +1,6 @@
 development:
   adapter: postgresql
   database: telegram
-  username: admin
-  password: password
+  username: postgres
+  password: admin
   host: localhost

@@ -130,6 +130,7 @@ DEPENDENCIES
   activerecord
   byebug
   dotenv
+  faraday
   i18n
   json
   net-http-persistent

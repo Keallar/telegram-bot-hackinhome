@@ -15,8 +15,12 @@ class TelegramBotApp
       listener = Bot::Listener.new(bot)
 
       bot.listen do |message|
-        Thread.start(message) do |rqst|
-          listener.call(rqst)
+        begin
+          Thread.start(message) do |rqst|
+            listener.call(rqst)
+          end
+        rescue => e
+          bot.logger.error(e.message)
         end
       end
     end

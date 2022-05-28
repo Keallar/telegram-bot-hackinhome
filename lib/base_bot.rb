@@ -3,14 +3,18 @@ require 'dotenv/load'
 
 module Bot
   class BaseBot
-    attr_accessor :bot
+    attr_accessor :bot, :messages
 
     def initialize(bot)
       @bot = bot
-      @commands = {}
+      @messages = []
     end
 
+    private
 
+    def previous_message
+      @messages.last
+    end
   end
 end
 
