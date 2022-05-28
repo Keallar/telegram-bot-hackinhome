@@ -2,7 +2,7 @@ require_relative 'request'
 require_relative 'base_bot'
 
 module Bot
-  class Teachers < BaseBot
+  class Teacher < BaseBot
 
     def find(request)
 

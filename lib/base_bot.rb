@@ -17,4 +17,3 @@ module Bot
     end
   end
 end
-

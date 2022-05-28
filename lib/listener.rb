@@ -13,6 +13,7 @@ module Bot
       @navigation = Bot::Navigation.new(@bot)
       @lesson = Bot::Lesson.new(@bot)
       @schedule = Bot::Schedule.new(@bot)
+      @teacher = Bot::Teacher.new(@bot)
     end
 
     def call(message)
@@ -47,6 +48,7 @@ module Bot
         end
 
       when 'Авторизация'
+        @auth.auth_to_module
         if @auth.authenticated
           kb = [[Bot::KeyboardButton::TEACHERS, Bot::KeyboardButton::GET_SCHEDULE],
                 [Bot::KeyboardButton::GET_NAVIGATION, Bot::KeyboardButton::GET_LINKS_ON_LESSONS]]
@@ -58,7 +60,7 @@ module Bot
         end
 
       when "Навигация по ВУЗу"
-        @navigation.send_buttons(@message)
+        @navigation.send_buttons_stages(@message)
       when 'Преподаватели'
         @bot.api.send_message(chat_id: @message.from.id, text: "Преподаватели")
       when 'Главное меню'
