@@ -7,29 +7,28 @@ module Bot
     class << self
       URL = 'http://25.6.173.125:8080'
 
-      def send_data(bot, data)
+      def send_data(bot, data, options = {})
         case data
         when 'subjects'
-          request_subject(bot)
-        when 'faqs'
-          request_faq(bot)
+          request_subject_get_all(bot)
+        when 'proposal'
+          request_proposal_post(bot, options)
         end
       end
 
       private
 
-      def request_subject(bot)
-        uri = URI(URL + '/subjects/list')
+      def request_subject_get_all(bot)
+        uri = URI(URL + '/subject/list')
         response = Net::HTTP.get(uri)
-        bot.logger.info(response.to_json)
-        response.to_json
+        bot.logger.info(response)
+        JSON.parse(response)
       end
 
-      def request_faq(bot)
-        uri = URI(URL + '/faq/all')
-        response = Net::HTTP.get(uri)
-        bot.logger.info(response.to_json)
-        response.to_json
+      def request_proposal_post(bot, options)
+        uri = URI(URL + '/reqisition/save')
+        response = Net::HTTP.post(uri, options, "Content-Type" => "application/json")
+        @bot.logger.info(response)
       end
     end
   end

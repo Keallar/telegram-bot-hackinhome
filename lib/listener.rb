@@ -2,6 +2,8 @@ require 'telegram/bot'
 require_relative 'assets/keyboard_button'
 require_relative 'assets/inline_button'
 require_relative 'users/authorization'
+require_relative 'subjects_controller'
+require_relative 'navigation'
 
 module Bot
   class Listener
@@ -11,9 +13,9 @@ module Bot
       @bot = bot
       @auth = Bot::Authorization.new(@bot)
       @navigation = Bot::Navigation.new(@bot)
-      @subject = Bot::Subject.new(@bot)
+      @subject = Bot::SubjectsController.new(@bot)
       @schedule = Bot::Schedule.new(@bot)
-      @teacher = Bot::Teacher.new(@bot)
+      @teacher = Bot::TeachersController.new(@bot)
       @proposal = Bot::Proposal.new(@bot)
     end
 
@@ -69,9 +71,7 @@ module Bot
     end
 
     def query_call
-      if @auth.authenticated
-        parse_query
-      end
+      parse_query if @auth.authenticated
     end
 
     private
@@ -79,19 +79,19 @@ module Bot
     def parse_query
       case @message.data.split('_').first
       when 'navigation'
-        @navigation.listen(@message, data)
+        @navigation.listen(@message)
       when 'corpus'
-        @navigation.listen(@message, data)
+        @navigation.listen(@message)
       when 'teacher'
-        @teacher.listen(@message, data)
+        @teacher.listen(@message, @message.data)
       when 'subject'
-        @subject.listen(@message, data)
+        @subject.listen(@message)
       when 'schedule'
-        @schedule.listen(@message, data)
+        @schedule.listen(@message, @message.data)
       when 'back'
         kb = [[Bot::KeyboardButton::TEACHERS, Bot::KeyboardButton::GET_SCHEDULE],
               [Bot::KeyboardButton::GET_NAVIGATION, Bot::KeyboardButton::GET_SUBJECTS],
-               [Bot::KeyboardButton::PROPOSAL, Bot::KeyboardButton::DEBT]]
+              [Bot::KeyboardButton::PROPOSAL, Bot::KeyboardButton::DEBT]]
         markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: kb, resize_keyboard: true)
         @bot.logger.info('Назад')
         # TODO: delete previous message
@@ -102,19 +102,21 @@ module Bot
     def parse_message
       case @message.text
       when "Навигация по ВУЗу"
-        @navigation.send_buttons_new_stages(@message)
+        @navigation.send_buttons_corpuses(@message)
       when 'Поиск преподавателя'
         @bot.api.send_message(chat_id: @message.from.id, text: "Преподаватель")
       when 'Изучаемые предметы'
         @subject.subjects_list(@message)
       when "Заявка"
-        @proposal.faqs_all(@message)
+        @proposal.send_info(@message)
       when "Расписание"
         @bot.api.send_message(chat_id: @message.from.id, text: "Расписание")
       when "Долги"
         @bot.api.send_message(chat_id: @message.from.id, text: "Долги")
       # when 'Староста'
       #   @bot.api.send_message(chat_id: @message.from.id, text: "Староста")
+      when ->(n) { n.to_s.chars.last == '?' }
+        @proposal.listen(message)
       end
     end
   end

@@ -11,8 +11,8 @@ module Bot
   class Navigation < BaseBot
     # include Magick
 
-    def listen(message, data)
-      case data
+    def listen(message)
+      case message.data
       when 'navigation_1_stage_new'
         send_stage(message, 1, 'new')
       when 'navigation_2_stage_new'
@@ -25,26 +25,24 @@ module Bot
         send_stage(message, 5, 'new')
       when 'navigation_6_stage_new'
         send_stage(message, 6, 'new')
-      when 'navigation_7_stage_new'
-        send_stage(message, 7, 'new')
       when 'navigation_8_stage_new'
         send_stage(message, 8, 'new')
+      when 'navigation_9_stage_new'
+        send_stage(message, 9, 'new')
       when 'navigation_1_stage_old'
         send_stage(message, 1, 'old')
       when 'navigation_2_stage_old'
         send_stage(message, 2, 'old')
       when 'navigation_3_stage_old'
         send_stage(message, 3, 'old')
-      when 'navigation_4_stage_old'
+      when 'navigation_4_left_stage_old'
         send_stage(message, 4, 'old')
-      when 'navigation_5_stage_old'
+      when 'navigation_4_main_stage_old'
         send_stage(message, 5, 'old')
-      when 'navigation_6_stage_old'
+      when 'navigation_4_right_stage_old'
         send_stage(message, 6, 'old')
-      when 'navigation_7_stage_old'
+      when 'navigation_5_stage_old'
         send_stage(message, 7, 'old')
-      when 'navigation_8_stage_old'
-        send_stage(message, 8, 'old')
       when 'navigation_transition'
         send_stage(message, 0, 'transition')
       when 'corpus_new'
@@ -56,25 +54,14 @@ module Bot
       end
     end
 
-    def send_buttons_new_stages(message)
-      ikb = [Bot::InlineButton::Navigation::FIRST_STAGE_OLD, Bot::InlineButton::Navigation::SECOND_STAGE_OLD,
-             Bot::InlineButton::Navigation::THIRD_STAGE_OLD,  Bot::InlineButton::Navigation::FOURTH_STAGE_OLD,
-             Bot::InlineButton::Navigation::FIFTH_STAGE_OLD,  Bot::InlineButton::Navigation::SIXTH_STAGE_OLD,
-             Bot::InlineButton::Navigation::SEVENTH_STAGE_OLD,  Bot::InlineButton::Navigation::EIGHTH_STAGE_OLD,
-             Bot::InlineButton::BACK]
+    def send_buttons_corpuses(message)
+      @bot.logger.info "#{Bot::InlineButton::Corpus::TRANSITION}"
+      ikb = [Bot::InlineButton::Corpus::NEW_CORPUS, Bot::InlineButton::Corpus::OLD_CORPUS,
+             Bot::InlineButton::Corpus::TRANSITION, Bot::InlineButton::BACK]
       inline_markup = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: ikb)
-      @bot.logger.info('Send inline navigation stages')
-      @bot.api.send_message(chat_id: message.from.id, text: "Выберите этаж", reply_markup: inline_markup)
+      @bot.logger.info('Send inline navigation corpuses')
+      @bot.api.send_message(chat_id: message.from.id, text: "Выберите корпус", reply_markup: inline_markup)
     end
-
-
-    # def send_buttons_corpuses(message)
-    #   ikb = [Bot::InlineButton::Corpus::NEW_CORPUS, Bot::InlineButton::Corpus::OLD_CORPUS,
-    #          Bot::InlineButton::Corpus::TRANSITION, Bot::InlineButton::BACK]
-    #   inline_markup = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_markup: ikb)
-    #   @bot.logger.info('Send inline navigation corpuses')
-    #   @bot.api.send_message(chat_id: message.from.id, text: "Выберите корпус", reply_markup: inline_markup)
-    # end
 
     private
 
@@ -85,42 +72,47 @@ module Bot
     def document(num, corpus)
       case corpus
       when 'new'
-        if num == 1
-          return "https://vstankine.ru/sites/default/files/1_etazh_novy_korpus_12_1.pdf"
-        elsif num == 5 || num == 6 || num == 7 || num == 9
-          return  "https://vstankine.ru/sites/default/files/novyy_korpus_#{num}_etazh.pdf"
-        else
-          return "https://vstankine.ru/sites/default/files/novyy_korpus_#{num}_etazh_12.pdf"
+        case num
+        when 1 then "https://vstankine.ru/sites/default/files/1_etazh_novy_korpus_12_1.pdf"
+        when 2 then "https://vstankine.ru/sites/default/files/novyy_korpus_2_etazh_12.pdf"
+        when 3 then "https://vstankine.ru/sites/default/files/novyy_korpus_3_etazh_12.pdf"
+        when 4 then "https://vstankine.ru/sites/default/files/novyy_korpus_4_etazh_12.pdf"
+        when 5 then "https://vstankine.ru/sites/default/files/novyy_korpus_5_etazh.pdf"
+        when 6 then "https://vstankine.ru/sites/default/files/novyy_korpus_6_etazh.pdf"
+        when 8 then "https://vstankine.ru/sites/default/files/novyy_korpus_8_etazh.pdf"
+        when 9 then "https://vstankine.ru/sites/default/files/novyy_korpus_9_etazh.pdf"
         end
       when 'old'
-        if num == 1 || num == 2
-          return "https://vstankine.ru/sites/default/files/staryy_korpus_#{num}_etazh.pdf"
-        # elsif
-        # else
+        case num
+        when 1 then "https://vstankine.ru/sites/default/files/staryy_korpus_1_etazh.pdf"
+        when 2 then "https://vstankine.ru/sites/default/files/staryy_korpus_2_etazh_12.pdf"
+        when 3 then "https://vstankine.ru/sites/default/files/staryy_korpus_3_etazh_levoe_krylo.pdf"
+        when 4 then "https://vstankine.ru/sites/default/files/staryy_korpus_4_etazh_levoe_krylo.pdf"
+        when 5 then "https://vstankine.ru/sites/default/files/staryy_korpus_4_etazh_po_glavnoy_lestnice.pdf"
+        when 6 then "https://vstankine.ru/sites/default/files/staryy_korpus_4_etazh_pravoe_krylo.pdf"
+        when 7 then "https://vstankine.ru/sites/default/files/staryy_korpus_5_etazh.pdf"
         end
-
       when 'transition'
-        return "https://vstankine.ru/sites/default/files/perehod_12_versiya.pdf"
+        "https://vstankine.ru/sites/default/files/perehod_12_versiya.pdf"
       end
     end
 
-    # def send_buttons_new_stages(message)
-    #   ikb = [Bot::InlineButton::Navigation::FIRST_STAGE_OLD, Bot::InlineButton::Navigation::SECOND_STAGE_OLD,
-    #          Bot::InlineButton::Navigation::THIRD_STAGE_OLD,  Bot::InlineButton::Navigation::FOURTH_STAGE_OLD,
-    #          Bot::InlineButton::Navigation::FIFTH_STAGE_OLD,  Bot::InlineButton::Navigation::SIXTH_STAGE_OLD,
-    #          Bot::InlineButton::Navigation::SEVENTH_STAGE_OLD,  Bot::InlineButton::Navigation::EIGHTH_STAGE_OLD,
-    #          Bot::InlineButton::BACK]
-    #   inline_markup = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: ikb)
-    #   @bot.logger.info('Send inline navigation stages')
-    #   @bot.api.send_message(chat_id: message.from.id, text: "Выберите этаж", reply_markup: inline_markup)
-    # end
-
-    def send_buttons_old_stages(message)
+    def send_buttons_new_stages(message)
       ikb = [Bot::InlineButton::Navigation::FIRST_STAGE_NEW, Bot::InlineButton::Navigation::SECOND_STAGE_NEW,
              Bot::InlineButton::Navigation::THIRD_STAGE_NEW,  Bot::InlineButton::Navigation::FOURTH_STAGE_NEW,
              Bot::InlineButton::Navigation::FIFTH_STAGE_NEW,  Bot::InlineButton::Navigation::SIXTH_STAGE_NEW,
-             Bot::InlineButton::Navigation::SEVENTH_STAGE_NEW,  Bot::InlineButton::Navigation::EIGHTH_STAGE_NEW,
+             Bot::InlineButton::Navigation::EIGHTH_STAGE_NEW, Bot::InlineButton::Navigation::NINTH_STAGE_NEW,
              Bot::InlineButton::BACK]
+      inline_markup = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: ikb)
+      @bot.logger.info('Send inline navigation stages')
+      @bot.api.send_message(chat_id: message.from.id, text: "Выберите этаж", reply_markup: inline_markup)
+    end
+
+    def send_buttons_old_stages(message)
+      ikb = [Bot::InlineButton::Navigation::FIRST_STAGE_OLD, Bot::InlineButton::Navigation::SECOND_STAGE_OLD,
+             Bot::InlineButton::Navigation::THIRD_STAGE_OLD, Bot::InlineButton::Navigation::FOURTH_LEFT_STAGE_OLD,
+             Bot::InlineButton::Navigation::FOURTH_MAIN_STAGE_OLD, Bot::InlineButton::Navigation::FOURTH_RIGHT_STAGE_OLD,
+             Bot::InlineButton::Navigation::FIFTH_STAGE_OLD, Bot::InlineButton::BACK]
       inline_markup = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: ikb)
       @bot.logger.info('Send inline navigation stages')
       @bot.api.send_message(chat_id: message.from.id, text: "Выберите этаж", reply_markup: inline_markup)

@@ -28,6 +28,9 @@ Style/HashSyntax:
 Layout/MultilineOperationIndentation:
   Enabled: false
 
+Style/CaseLikeIf:
+  Enabled: false
+
 Metrics/BlockLength:
   Max: 100
 
@@ -44,4 +47,7 @@ Layout/LineLength:
   Max: 300
 
 Metrics/PerceivedComplexity:
-  Max: 20
+  Max: 30
+
+Metrics/ParameterLists:
+  Max: 8
