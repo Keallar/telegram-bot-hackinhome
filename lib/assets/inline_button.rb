@@ -2,9 +2,10 @@ require 'telegram/bot'
 
 module Bot
   module InlineButton
+    BACK ||= Telegram::Bot::Types::InlineKeyboardButton.new(text: 'Назад', callback_data: 'back')
 
-    module ListOfLesson
-      TEORVER ||= Telegram::Bot::Types::InlineKeyboardButton.new(text: 'Теор. вер', callback_data: 'lesson_teorver')
+    module FAQ
+      SEND_REQUEST ||= Telegram::Bot::Types::InlineKeyboardButton.new(text: 'Заявка отправлена', callback_data: 'faq_request')
     end
 
     module Schedule

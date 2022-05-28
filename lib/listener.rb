@@ -11,9 +11,10 @@ module Bot
       @bot = bot
       @auth = Bot::Authorization.new(@bot)
       @navigation = Bot::Navigation.new(@bot)
-      @lesson = Bot::Lesson.new(@bot)
+      @subject = Bot::Subject.new(@bot)
       @schedule = Bot::Schedule.new(@bot)
       @teacher = Bot::Teacher.new(@bot)
+      @proposal = Bot::Proposal.new(@bot)
     end
 
     def call(message)
@@ -33,62 +34,88 @@ module Bot
     end
 
     def message_call
-      case @message.text
-      when '/start'
-        if !@auth.authenticated
-          kb = [Bot::KeyboardButton::AUTHORIZATION]
-          markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: kb, resize_keyboard: true)
-          @bot.logger.info('Bot has been started working')
-          @bot.api.send_message(chat_id: @message.chat.id, text: 'Добро пожаловать!', reply_markup: markup)
-        else
-          kb = [[Bot::KeyboardButton::TEACHERS, Bot::KeyboardButton::GET_SCHEDULE],
-                [Bot::KeyboardButton::GET_NAVIGATION, Bot::KeyboardButton::GET_LINKS_ON_LESSONS]]
-          markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: kb, resize_keyboard: true)
-          @bot.api.send_message(chat_id: @message.chat.id, text: "Авторизация прошла успешно", reply_markup: markup)
-        end
-
-      when 'Авторизация'
-        @auth.auth_to_module
-        if @auth.authenticated
-          kb = [[Bot::KeyboardButton::TEACHERS, Bot::KeyboardButton::GET_SCHEDULE],
-                [Bot::KeyboardButton::GET_NAVIGATION, Bot::KeyboardButton::GET_LINKS_ON_LESSONS]]
-          markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: kb)
-          @bot.logger.info('Авторизация')
-          @bot.api.send_message(chat_id: @message.chat.id, text: "Авторизация прошла успешно", reply_markup: markup)
-        else
-          @bot.api.send_message(chat_id: @message.from.id, text: "Ошибка при аторизации")
-        end
-
-      when "Навигация по ВУЗу"
-        @navigation.send_buttons_stages(@message)
-      when 'Преподаватели'
-        @bot.api.send_message(chat_id: @message.from.id, text: "Преподаватели")
-      when 'Главное меню'
-        @bot.api.send_message(chat_id: @message.from.id, text: "Главное меню")
-      when "Назад"
-        @bot.api.send_message(chat_id: @message.from.id, text: "Назад")
+      if @auth.authenticated
+        parse_message
       else
-        @bot.api.send_message(chat_id: @message.from.id, text: "Жопа")
+        case @message.text
+        when '/start'
+          if !@auth.authenticated
+            kb = [Bot::KeyboardButton::AUTHORIZATION]
+            markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: kb, resize_keyboard: true)
+            @bot.logger.info('Bot has been started working')
+            @bot.api.send_message(chat_id: @message.chat.id, text: 'Добро пожаловать!', reply_markup: markup)
+          else
+            kb = [[Bot::KeyboardButton::TEACHERS, Bot::KeyboardButton::GET_SCHEDULE],
+                  [Bot::KeyboardButton::GET_NAVIGATION, Bot::KeyboardButton::GET_SUBJECTS],
+                  [Bot::KeyboardButton::PROPOSAL, Bot::KeyboardButton::DEBT]]
+            markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: kb, resize_keyboard: true)
+            @bot.api.send_message(chat_id: @message.chat.id, text: "Авторизация прошла успешно", reply_markup: markup)
+          end
+
+        when 'Авторизация'
+          @auth.auth_to_module
+          if @auth.authenticated
+            kb = [[Bot::KeyboardButton::TEACHERS, Bot::KeyboardButton::GET_SCHEDULE],
+                  [Bot::KeyboardButton::GET_NAVIGATION, Bot::KeyboardButton::GET_SUBJECTS],
+                  [Bot::KeyboardButton::PROPOSAL, Bot::KeyboardButton::DEBT]]
+            markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: kb, resize_keyboard: true)
+            @bot.logger.info('Авторизация')
+            @bot.api.send_message(chat_id: @message.chat.id, text: "Авторизация прошла успешно", reply_markup: markup)
+          else
+            @bot.api.send_message(chat_id: @message.from.id, text: "Ошибка при аторизации")
+          end
+        end
       end
     end
 
     def query_call
-      parse_query(@message.data)
+      if @auth.authenticated
+        parse_query
+      end
     end
 
     private
 
-    def parse_query(data)
-      case data.split('_').first
+    def parse_query
+      case @message.data.split('_').first
       when 'navigation'
         @navigation.listen(@message, data)
-      when 'lesson'
-        @lesson.listen(data)
+      when 'corpus'
+        @navigation.listen(@message, data)
+      when 'teacher'
+        @teacher.listen(@message, data)
+      when 'subject'
+        @subject.listen(@message, data)
       when 'schedule'
-        @schedule.listen(data)
+        @schedule.listen(@message, data)
+      when 'back'
+        kb = [[Bot::KeyboardButton::TEACHERS, Bot::KeyboardButton::GET_SCHEDULE],
+              [Bot::KeyboardButton::GET_NAVIGATION, Bot::KeyboardButton::GET_SUBJECTS],
+               [Bot::KeyboardButton::PROPOSAL, Bot::KeyboardButton::DEBT]]
+        markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: kb, resize_keyboard: true)
+        @bot.logger.info('Назад')
+        # TODO: delete previous message
+        @bot.api.send_message(chat_id: @message.from.id, text: "Назад", reply_markup: markup)
       end
     end
 
-    def parse_message(message); end
+    def parse_message
+      case @message.text
+      when "Навигация по ВУЗу"
+        @navigation.send_buttons_new_stages(@message)
+      when 'Поиск преподавателя'
+        @bot.api.send_message(chat_id: @message.from.id, text: "Преподаватель")
+      when 'Изучаемые предметы'
+        @subject.subjects_list(@message)
+      when "Заявка"
+        @proposal.faqs_all(@message)
+      when "Расписание"
+        @bot.api.send_message(chat_id: @message.from.id, text: "Расписание")
+      when "Долги"
+        @bot.api.send_message(chat_id: @message.from.id, text: "Долги")
+      # when 'Староста'
+      #   @bot.api.send_message(chat_id: @message.from.id, text: "Староста")
+      end
+    end
   end
 end
