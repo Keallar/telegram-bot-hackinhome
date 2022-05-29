@@ -22,7 +22,7 @@ module Bot
       parse_subjects(response)
       ikb = []
       @arr_subjects.each do |subject|
-        @bot.logger.info "subject: #{subject.name}"
+        @bot.logger.info "subject: #{subject.callback_data}"
         ikb << subject.inline_button
       end
       inline_markup = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: ikb)
@@ -34,8 +34,8 @@ module Bot
 
     def parse_subjects(json)
       @arr_subjects = []
-      button = []
       json.each do |h|
+        button = []
         @bot.logger.info "#{h}"
         button << Bot::InlineButtonGenerator.create('subject', h)
         button << Bot::InlineButtonGenerator.callback_data('subject', h)
