@@ -17,6 +17,7 @@ module Bot
       @schedule = Bot::Schedule.new(@bot)
       @teacher = Bot::TeachersController.new(@bot)
       @proposal = Bot::ProposalController.new(@bot)
+      @student = Bot::StudentsController.new(@bot)
     end
 
     def call(message)
@@ -115,9 +116,9 @@ module Bot
       when "Долги"
         @bot.api.send_message(chat_id: @message.from.id, text: "Долги")
       when 'Список группы'
-        @bot.api.send_message(chat_id: @message.from.id, text: "Список группы")
+        @student.students_list(@message)
       when ->(n) { n.to_s.chars.last == '?' }
-        @proposal.listen(message)
+        @proposal.listen(@message)
       else
         @teacher.listen(@message)
       end

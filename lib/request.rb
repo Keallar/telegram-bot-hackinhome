@@ -13,6 +13,8 @@ module Bot
           request_subject_get_all(bot)
         when 'proposal'
           request_proposal_post(bot, options)
+        when 'student'
+          request_students_all(bot)
         end
       end
 
@@ -29,6 +31,13 @@ module Bot
         uri = URI(URL + '/requisition/save')
         response = Net::HTTP.post(uri, JSON.generate(options), "Content-Type" => "application/json")
         bot.logger.info(response)
+      end
+
+      def request_students_all(bot)
+        uri = URI(URL + '/student/list')
+        response = Net::HTTP.get(uri)
+        bot.logger.info(response)
+        JSON.parse(response)
       end
     end
   end

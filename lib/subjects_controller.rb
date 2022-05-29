@@ -41,7 +41,6 @@ module Bot
         button << Bot::InlineButtonGenerator.callback_data('subject', h)
         @arr_subjects << Subject.new(h, button)
       end
-      @bot.logger.info(@arr_subjects)
     end
   end
 end
