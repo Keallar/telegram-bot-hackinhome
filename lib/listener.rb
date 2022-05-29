@@ -83,12 +83,10 @@ module Bot
         @navigation.listen(@message)
       when 'corpus'
         @navigation.listen(@message)
-      when 'teacher'
-        @teacher.listen(@message, @message.data)
       when 'subject'
         @subject.listen(@message)
       when 'schedule'
-        @schedule.listen(@message, @message.data)
+        @schedule.listen(@message)
       when 'proposal'
         @proposal.listen(@message)
       when 'back'
@@ -107,7 +105,7 @@ module Bot
       when "Навигация по ВУЗу"
         @navigation.send_buttons_corpuses(@message)
       when 'Поиск преподавателя'
-        # @teacher.send_info(@message)
+        @teacher.send_info(@message)
       when 'Изучаемые предметы'
         @subject.subjects_list(@message)
       when "Заявка"
@@ -120,8 +118,8 @@ module Bot
         @bot.api.send_message(chat_id: @message.from.id, text: "Список группы")
       when ->(n) { n.to_s.chars.last == '?' }
         @proposal.listen(message)
-      # else
-        # @teacher.listen(@message.text)
+      else
+        @teacher.listen(@message)
       end
     end
   end

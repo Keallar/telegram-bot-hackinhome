@@ -3,7 +3,7 @@ require_relative 'base_bot'
 
 module Bot
   class Schedule < BaseBot
-    def listen(message, data)
+    def listen(message)
       
     end
   end
