@@ -1,5 +1,7 @@
 require 'telegram/bot'
 require 'json'
+require 'time'
+require 'date'
 require_relative 'base_bot'
 require_relative 'request'
 require_relative 'objects/subject'
@@ -12,7 +14,7 @@ module Bot
     def listen(message)
       if message.data.split('_').first == 'subject'
         @arr_subjects.each do |subject|
-          @bot.api.send_message(chat_id: message.from.id, text: "#{subject.id}. #{subject.name}, #{subject.url}, #{subject.module_start_date}, #{subject.module_end_date}") if message.data == subject.callback_data
+          @bot.api.send_message(chat_id: message.from.id, text: info(subject)) if message.data == subject.callback_data
         end
       end
     end
@@ -32,11 +34,22 @@ module Bot
 
     private
 
+    def info(obj)
+      str = " "
+      str << obj.id.to_s << '. '
+      str << obj.name << ', '
+      str << obj.url << ', ' unless obj.url.nil?
+      d = DateTime.parse(obj.module_start_date) unless obj.module_start_date.nil?
+      str << 'Начало модуля: ' << d.strftime('%d-%m-%Y') << ', ' unless d.nil?
+      d = DateTime.parse(obj.module_end_date) unless obj.module_end_date.nil?
+      str << 'Конец модуля: ' << d.strftime('%d-%m-%Y') << '.' unless d.nil?
+      str
+    end
+
     def parse_subjects(json)
       @arr_subjects = []
       json.each do |h|
         button = []
-        @bot.logger.info "#{h}"
         button << Bot::InlineButtonGenerator.create('subject', h)
         button << Bot::InlineButtonGenerator.callback_data('subject', h)
         @arr_subjects << Subject.new(h, button)

@@ -112,7 +112,7 @@ module Bot
       when "Заявка"
         @proposal.send_info(@message)
       when "Расписание"
-        @bot.api.send_message(chat_id: @message.from.id, text: "Расписание")
+        @schedule.listen(@message)
       when "Долги"
         @bot.api.send_message(chat_id: @message.from.id, text: "Долги")
       when 'Список группы'

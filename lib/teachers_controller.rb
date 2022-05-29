@@ -14,7 +14,11 @@ module Bot
       data = CGI.escape message.text
       json = find_by_surname(data)
       if !json.empty?
+        count = 0
         json.each do |value|
+          return if count == 5
+
+          count += 1
           @bot.api.send_message(chat_id: message.from.id, text: "#{value['fullName']}")
         end
       else
