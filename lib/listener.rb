@@ -90,6 +90,8 @@ module Bot
         @schedule.listen(@message)
       when 'proposal'
         @proposal.listen(@message)
+      when 'teacher'
+        @teacher.listen(@message)
       when 'back'
         kb = [[Bot::KeyboardButton::TEACHERS, Bot::KeyboardButton::GET_SCHEDULE],
               [Bot::KeyboardButton::GET_NAVIGATION, Bot::KeyboardButton::GET_SUBJECTS],
@@ -120,7 +122,7 @@ module Bot
       when ->(n) { n.to_s.chars.last == '?' }
         @proposal.listen(@message)
       else
-        @teacher.listen(@message)
+        @teacher.send_list(@message)
       end
     end
   end

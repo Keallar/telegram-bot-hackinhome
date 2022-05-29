@@ -21,7 +21,7 @@ module Bot
         @arr_proposals.each do |proposal|
           if message.data == proposal.callback_data
             request(proposal)
-            @bot.api.send_message(chat_id: message.from.id, text: "Отправлена заявка #{proposal.type}")
+            @bot.api.send_message(chat_id: message.from.id, text: "Отправлена заявка #{ENUM[proposal.type]}")
           end
         end
       end
