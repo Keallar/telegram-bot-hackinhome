@@ -38,5 +38,9 @@ module Bot
       @bot.logger.info(response)
       JSON.parse(response)
     end
+
+    def info
+
+    end
   end
 end

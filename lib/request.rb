@@ -29,6 +29,7 @@ module Bot
 
       def request_proposal_post(bot, options)
         uri = URI(URL + '/requisition/save')
+        puts "#{options}"
         response = Net::HTTP.post(uri, JSON.generate(options), "Content-Type" => "application/json")
         bot.logger.info(response)
       end

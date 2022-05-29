@@ -17,8 +17,6 @@ gem 'rake'
 gem 'rmagick'
 gem 'rubocop'
 gem 'ruby-enum'
-gem 'sinatra'
-gem 'sinatra-activerecord'
 gem 'telegram-bot-ruby'
 
 group :development, :test do

@@ -10,8 +10,6 @@ module Bot
       @messages = []
     end
 
-    private
-
     def previous_message
       @messages.last
     end

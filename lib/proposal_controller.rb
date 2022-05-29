@@ -11,9 +11,9 @@ module Bot
     attr_accessor :arr_proposals
 
     ENUM = {
-      :profcom => "Заявление в профком",
-      :army => "Справка в военкомат",
-      :studiiying => "Справка обучающегося"
+      'PROFCOM' => "Заявление в профком",
+      'ARMY' => "Справка в военкомат",
+      'STUDIYING' => "Справка обучающегося"
     }
 
     def listen(message)
@@ -30,16 +30,15 @@ module Bot
     def send_info(message)
       @arr_proposals = []
       id = 0
-      ENUM.each_value do |e|
+      ENUM.each_pair do |key, value|
         button = []
         id += 1
-        button << Bot::InlineButtonGenerator.create('proposal', { 'name' => e, 'id' => id })
-        button << Bot::InlineButtonGenerator.callback_data('proposal', { 'name' => e, 'id' => id })
-        @arr_proposals << Proposal.new(e, button)
+        button << Bot::InlineButtonGenerator.create('proposal', { 'name' => value, 'id' => id })
+        button << Bot::InlineButtonGenerator.callback_data('proposal', { 'name' => key, 'id' => id })
+        @arr_proposals << Proposal.new(key, button)
       end
       ikb = []
       @arr_proposals.each do |proposal|
-        @bot.logger.info "proposal #{proposal.type}"
         ikb << proposal.inline_button
       end
       inline_markup = Telegram::Bot::Types::InlineKeyboardMarkup.new(inline_keyboard: ikb)
