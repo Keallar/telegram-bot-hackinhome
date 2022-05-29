@@ -16,7 +16,7 @@ module Bot
       @subject = Bot::SubjectsController.new(@bot)
       @schedule = Bot::Schedule.new(@bot)
       @teacher = Bot::TeachersController.new(@bot)
-      @proposal = Bot::Proposal.new(@bot)
+      @proposal = Bot::ProposalController.new(@bot)
     end
 
     def call(message)
@@ -45,7 +45,7 @@ module Bot
             kb = [Bot::KeyboardButton::AUTHORIZATION]
             markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: kb, resize_keyboard: true)
             @bot.logger.info('Bot has been started working')
-            @bot.api.send_message(chat_id: @message.chat.id, text: 'Добро пожаловать!', reply_markup: markup)
+            @bot.api.send_message(chat_id: @message.chat.id, text: 'Приветствую в боте!', reply_markup: markup)
           else
             kb = [[Bot::KeyboardButton::TEACHERS, Bot::KeyboardButton::GET_SCHEDULE],
                   [Bot::KeyboardButton::GET_NAVIGATION, Bot::KeyboardButton::GET_SUBJECTS],
@@ -59,7 +59,8 @@ module Bot
           if @auth.authenticated
             kb = [[Bot::KeyboardButton::TEACHERS, Bot::KeyboardButton::GET_SCHEDULE],
                   [Bot::KeyboardButton::GET_NAVIGATION, Bot::KeyboardButton::GET_SUBJECTS],
-                  [Bot::KeyboardButton::PROPOSAL, Bot::KeyboardButton::DEBT]]
+                  [Bot::KeyboardButton::PROPOSAL, Bot::KeyboardButton::DEBT],
+                  Bot::KeyboardButton::Elder::GROUP_LIST]
             markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: kb, resize_keyboard: true)
             @bot.logger.info('Авторизация')
             @bot.api.send_message(chat_id: @message.chat.id, text: "Авторизация прошла успешно", reply_markup: markup)
@@ -88,6 +89,8 @@ module Bot
         @subject.listen(@message)
       when 'schedule'
         @schedule.listen(@message, @message.data)
+      when 'proposal'
+        @proposal.listen(@message)
       when 'back'
         kb = [[Bot::KeyboardButton::TEACHERS, Bot::KeyboardButton::GET_SCHEDULE],
               [Bot::KeyboardButton::GET_NAVIGATION, Bot::KeyboardButton::GET_SUBJECTS],
@@ -104,7 +107,7 @@ module Bot
       when "Навигация по ВУЗу"
         @navigation.send_buttons_corpuses(@message)
       when 'Поиск преподавателя'
-        @bot.api.send_message(chat_id: @message.from.id, text: "Преподаватель")
+        # @teacher.send_info(@message)
       when 'Изучаемые предметы'
         @subject.subjects_list(@message)
       when "Заявка"
@@ -113,10 +116,12 @@ module Bot
         @bot.api.send_message(chat_id: @message.from.id, text: "Расписание")
       when "Долги"
         @bot.api.send_message(chat_id: @message.from.id, text: "Долги")
-      # when 'Староста'
-      #   @bot.api.send_message(chat_id: @message.from.id, text: "Староста")
+      when 'Список группы'
+        @bot.api.send_message(chat_id: @message.from.id, text: "Список группы")
       when ->(n) { n.to_s.chars.last == '?' }
         @proposal.listen(message)
+      # else
+        # @teacher.listen(@message.text)
       end
     end
   end
